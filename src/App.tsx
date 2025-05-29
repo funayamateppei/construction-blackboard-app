@@ -1,11 +1,11 @@
 import {useState, useRef, useEffect, useCallback} from "react"
-import piexif, {type ExifDict} from "piexifjs"
+import {type ExifDict} from "piexifjs"
 import "./App.css"
 
 // コンポーネントのインポート
 import {FileUpload, ConstructionInputs, ImagePreview, ExifDisplay, CanvasPreview, Preview} from "./components"
 // ヘルパー関数のインポート
-import {hasMeaningfulExif, transferExifData, drawConstructionBoard, handleProcessImage, handleImageUpload} from "./utils"
+import {drawConstructionBoard, handleProcessImage, handleImageUpload} from "./utils"
 
 function App() {
   const [originalImage, setOriginalImage] = useState<string | null>(null)
@@ -45,13 +45,11 @@ function App() {
       const imgLoader = imageLoaderRef.current
 
       imgLoader.onload = () => {
-        // プレビューでは回転なしで表示
         canvas.width = imgLoader.naturalWidth
         canvas.height = imgLoader.naturalHeight
 
         if (ctx) {
           ctx.drawImage(imgLoader, 0, 0, imgLoader.naturalWidth, imgLoader.naturalHeight)
-
           // 工事黒板の文字を描画
           drawConstructionBoard(ctx, canvas.width, canvas.height, constructionName, constructionDate)
         }
@@ -67,62 +65,17 @@ function App() {
     }
   }, [originalImage, constructionName, constructionDate])
 
-  // 生成された画像を回転させてダウンロードする関数
+  // 画像ダウンロード処理
   const handleDownload = useCallback(() => {
     if (!processedImage) return
 
-    const img = new Image()
-    img.onload = () => {
-      const canvas = document.createElement("canvas")
-      const ctx = canvas.getContext("2d")
-      if (!ctx) return
-
-      // 回転に基づいてCanvasのサイズを決定
-      const canvasWidth = img.width
-      const canvasHeight = img.height
-
-      canvas.width = canvasWidth
-      canvas.height = canvasHeight
-
-      // 回転に基づいて画像を適切に変換して描画
-      ctx.save()
-
-      ctx.drawImage(img, 0, 0, img.width, img.height)
-      ctx.restore()
-
-      // 回転した画像をダウンロード
-      const rotatedImageDataUrl = canvas.toDataURL("image/jpeg", 0.9)
-
-      if (originalExifObj && originalImageType === "image/jpeg" && hasMeaningfulExif(originalExifObj)) {
-        try {
-          const transferredExif = transferExifData(originalExifObj)
-          if (transferredExif) {
-            const exifBytes = piexif.dump(transferredExif)
-            const imageWithExifDataUrl = piexif.insert(exifBytes, rotatedImageDataUrl)
-
-            const link = document.createElement("a")
-            link.href = imageWithExifDataUrl
-            link.download = `construction_board_image.jpg`
-            document.body.appendChild(link)
-            link.click()
-            document.body.removeChild(link)
-          } else {
-            throw new Error("Transferred Exif data is null.")
-          }
-        } catch (error) {
-          console.error("Failed to insert EXIF data into rotated image:", error)
-        }
-      } else {
-        const link = document.createElement("a")
-        link.href = rotatedImageDataUrl
-        link.download = `construction_board_image.jpg`
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
-      }
-    }
-    img.src = processedImage
-  }, [processedImage, originalExifObj, originalImageType])
+    const link = document.createElement("a")
+    link.href = processedImage
+    link.download = `construction_board_image.jpg`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }, [processedImage])
 
   return (
     <div className="App">

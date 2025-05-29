@@ -74,22 +74,8 @@ export function extractDateTimeFromExif(exifData: piexif.ExifDict | null): Date 
     // DateTime, DateTimeOriginal, DateTimeDigitized の順で優先的に取得
     // 最適化: プロパティアクセスを一度だけ実行
     const exifIfd = exifData["Exif"]
-    const zeroIfd = exifData["0th"]
 
-    let dateTimeString = ""
-
-    // Exif IFDから DateTimeOriginal を取得 (撮影日時)
-    if (exifIfd?.[piexif.ExifIFD.DateTimeOriginal]) {
-      dateTimeString = exifIfd[piexif.ExifIFD.DateTimeOriginal] as string
-    }
-    // Exif IFDから DateTimeDigitized を取得 (デジタル化日時)
-    else if (exifIfd?.[piexif.ExifIFD.DateTimeDigitized]) {
-      dateTimeString = exifIfd[piexif.ExifIFD.DateTimeDigitized] as string
-    }
-    // 0th IFDから DateTime を取得 (最終変更日時)
-    else if (zeroIfd?.[piexif.ImageIFD.DateTime]) {
-      dateTimeString = zeroIfd[piexif.ImageIFD.DateTime] as string
-    }
+    const dateTimeString = exifIfd?.[piexif.ExifIFD.DateTimeOriginal] ?? ""
 
     if (dateTimeString) {
       console.log("Original EXIF DateTime string:", dateTimeString)
@@ -178,20 +164,4 @@ export function extractExifDetails(exifData: piexif.ExifDict | null): {
   }
 
   return {dateTime, gpsInfo}
-}
-
-/**
- * Exifデータをそのまま引き継ぐヘルパー関数
- * Exifデータ全体を返却する
- */
-export function transferExifData(exifData: piexif.ExifDict | null): piexif.ExifDict | null {
-  if (!exifData) return null
-
-  try {
-    // Exifデータをそのまま返却
-    return exifData
-  } catch (error) {
-    console.error("Failed to transfer Exif data:", error)
-    return null
-  }
 }
