@@ -11,8 +11,8 @@ interface ExifDisplayProps {
 export const ExifDisplay = memo(({exifData}: ExifDisplayProps) => {
   return (
     <div className="column">
-      <h2>読み取られたExif情報 (JPEGの場合)</h2>
-      <pre className="exif-display">{exifData || "Exif情報はありません / PNGが選択されています"}</pre>
+      <h2>読み取られたExif情報</h2>
+      <pre className="exif-display">{exifData || "Exif情報はありません"}</pre>
     </div>
   )
 })
