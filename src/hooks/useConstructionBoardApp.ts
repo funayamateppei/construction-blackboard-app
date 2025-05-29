@@ -177,7 +177,7 @@ export const useConstructionBoardApp = () => {
    * デバッグ情報（開発時のみ）
    */
   useEffect(() => {
-    if (process.env.NODE_ENV === "development") {
+    if (import.meta.env.DEV) {
       console.debug("App State Updated:", {
         hasOriginalImage: !!state.originalImage,
         hasExifData: !!state.exifDetails.originalExifObj,
