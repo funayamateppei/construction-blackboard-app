@@ -279,32 +279,17 @@ function App() {
     const newImageDataUrl = canvas.toDataURL("image/jpeg", 0.9)
 
     if (originalExifObj && originalImageType === "image/jpeg" && hasMeaningfulExif(originalExifObj)) {
-      try {
-        const transferredExif = transferExifData(originalExifObj)
-        if (transferredExif) {
-          const exifBytes = piexif.dump(transferredExif)
-          const imageWithExifDataUrl = piexif.insert(exifBytes, newImageDataUrl)
-          setProcessedImage(imageWithExifDataUrl)
-          alert("工事黒板付きJPEG画像を生成しました！元のExif情報も付与されています。")
-        } else {
-          throw new Error("Transferred Exif data is null.")
-        }
-      } catch (error) {
-        console.error("Failed to insert EXIF data:", error)
-        setProcessedImage(newImageDataUrl)
-        alert("工事黒板付きJPEG画像を生成しました。ただし、Exif情報の付与に失敗しました。")
+      // Reset Exif Orientation to 1 (default)
+      const updatedExif = {...originalExifObj}
+      if (updatedExif["0th"] && updatedExif["0th"][piexif.ImageIFD.Orientation]) {
+        updatedExif["0th"][piexif.ImageIFD.Orientation] = 1
       }
+
+      const exifStr = piexif.dump(updatedExif)
+      const newImageWithExif = piexif.insert(exifStr, newImageDataUrl)
+      setProcessedImage(newImageWithExif)
     } else {
       setProcessedImage(newImageDataUrl)
-      if (originalImageType === "image/png") {
-        alert("工事黒板付きJPEG画像を生成しました。元画像がPNGのため、Exif情報は付与されませんでした。")
-      } else if (originalImageType === "image/jpeg" && !hasMeaningfulExif(originalExifObj)) {
-        alert(
-          "工事黒板付きJPEG画像を生成しました。元画像にコピー可能なExif情報が見つからなかったため、Exif情報は付与されませんでした。",
-        )
-      } else {
-        alert("工事黒板付きJPEG画像を生成しました。")
-      }
     }
   }
 
