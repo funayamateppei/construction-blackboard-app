@@ -5,14 +5,23 @@ import piexif from "piexifjs"
  */
 export function hasMeaningfulExif(exifData: piexif.ExifDict | null): boolean {
   if (!exifData) return false
+
+  // より効率的なアクセス方法：プロパティを直接参照
+  const zeroIfd = exifData["0th"]
+  const exifIfd = exifData["Exif"]
+  const gpsIfd = exifData["GPS"]
+  const interopIfd = exifData["Interop"]
+  const firstIfd = exifData["1st"]
+  const thumbnail = exifData.thumbnail
+
   return (
-    (exifData["0th"] && Object.keys(exifData["0th"]).length > 0) ||
-    (exifData["Exif"] && Object.keys(exifData["Exif"]).length > 0) ||
-    (exifData["GPS"] && Object.keys(exifData["GPS"]).length > 0) ||
-    (exifData["Interop"] && Object.keys(exifData["Interop"]).length > 0) ||
-    (exifData["1st"] && Object.keys(exifData["1st"]).length > 0) ||
-    (!!exifData.thumbnail && typeof exifData.thumbnail === "string" && exifData.thumbnail.length > 0) ||
-    (!!exifData.thumbnail && typeof exifData.thumbnail !== "string" && (exifData.thumbnail as Uint8Array).length > 0)
+    (zeroIfd && Object.keys(zeroIfd).length > 0) ||
+    (exifIfd && Object.keys(exifIfd).length > 0) ||
+    (gpsIfd && Object.keys(gpsIfd).length > 0) ||
+    (interopIfd && Object.keys(interopIfd).length > 0) ||
+    (firstIfd && Object.keys(firstIfd).length > 0) ||
+    (!!thumbnail && typeof thumbnail === "string" && thumbnail.length > 0) ||
+    (!!thumbnail && typeof thumbnail !== "string" && (thumbnail as Uint8Array).length > 0)
   )
 }
 
@@ -56,27 +65,29 @@ export function formatDateForInput(date: Date | null): string {
 
 /**
  * Exif情報から撮影日時を取得するヘルパー関数
+ * 最適化: 一度のアクセスでプロパティを取得してキャッシュ
  */
 export function extractDateTimeFromExif(exifData: piexif.ExifDict | null): Date | null {
   if (!exifData) return null
 
   try {
     // DateTime, DateTimeOriginal, DateTimeDigitized の順で優先的に取得
+    // 最適化: プロパティアクセスを一度だけ実行
     const exifIfd = exifData["Exif"]
     const zeroIfd = exifData["0th"]
 
     let dateTimeString = ""
 
     // Exif IFDから DateTimeOriginal を取得 (撮影日時)
-    if (exifIfd && exifIfd[piexif.ExifIFD.DateTimeOriginal]) {
+    if (exifIfd?.[piexif.ExifIFD.DateTimeOriginal]) {
       dateTimeString = exifIfd[piexif.ExifIFD.DateTimeOriginal] as string
     }
     // Exif IFDから DateTimeDigitized を取得 (デジタル化日時)
-    else if (exifIfd && exifIfd[piexif.ExifIFD.DateTimeDigitized]) {
+    else if (exifIfd?.[piexif.ExifIFD.DateTimeDigitized]) {
       dateTimeString = exifIfd[piexif.ExifIFD.DateTimeDigitized] as string
     }
     // 0th IFDから DateTime を取得 (最終変更日時)
-    else if (zeroIfd && zeroIfd[piexif.ImageIFD.DateTime]) {
+    else if (zeroIfd?.[piexif.ImageIFD.DateTime]) {
       dateTimeString = zeroIfd[piexif.ImageIFD.DateTime] as string
     }
 
