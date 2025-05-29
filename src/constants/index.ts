@@ -17,8 +17,8 @@ export const APP_INFO = {
  * サポートされるファイル形式
  */
 export const FILE_CONFIG = {
-  SUPPORTED_TYPES: ["image/jpeg", "image/png"] as SupportedImageType[],
-  ACCEPT_ATTRIBUTE: "image/jpeg,image/png,.jpg,.jpeg,.png",
+  SUPPORTED_TYPES: ["image/jpeg"] as SupportedImageType[],
+  ACCEPT_ATTRIBUTE: "image/jpeg,.jpg,.jpeg",
   DEFAULT_DOWNLOAD_FILENAME: "construction_board_image.jpg",
 } as const
 

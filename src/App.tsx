@@ -182,7 +182,7 @@ function App(): React.JSX.Element {
         <div className="content-layout">
           <ImagePreview
             src={state.originalImage?.dataUrl || null}
-            type={(state.originalImage?.type as "image/jpeg" | "image/png" | null) || null}
+            type={(state.originalImage?.type as "image/jpeg" | null) || null}
           />
 
           <ExifDisplay exifData={state.exifDetails.displayString} />

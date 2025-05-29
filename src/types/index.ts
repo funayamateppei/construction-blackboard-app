@@ -134,5 +134,5 @@ export interface AppError {
 /**
  * サポートされる画像形式
  */
-export const SUPPORTED_IMAGE_TYPES = ["image/jpeg", "image/png"] as const
+export const SUPPORTED_IMAGE_TYPES = ["image/jpeg"] as const
 export type SupportedImageType = (typeof SUPPORTED_IMAGE_TYPES)[number]

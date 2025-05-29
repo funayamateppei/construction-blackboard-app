@@ -114,19 +114,6 @@ export const useFileUpload = () => {
   }, [])
 
   /**
-   * PNG画像用のExif情報（空の情報）を返す
-   */
-  const createPngExifDetails = useCallback((): ExifDetails => {
-    return {
-      originalExifObj: null,
-      displayString:
-        "PNG image selected. PNGs typically do not use EXIF data in the same way as JPEGs. No EXIF data will be extracted or copied using piexifjs.",
-      dateTime: null,
-      gpsInfo: null,
-    }
-  }, [])
-
-  /**
    * ファイルをアップロードして解析する
    */
   const uploadFile = useCallback(
@@ -146,13 +133,8 @@ export const useFileUpload = () => {
           fileName: file.name,
         }
 
-        // Exif情報を解析
-        let exifDetails: ExifDetails
-        if (file.type === "image/jpeg") {
-          exifDetails = parseExifData(dataUrl)
-        } else {
-          exifDetails = createPngExifDetails()
-        }
+        // JPEG画像のExif情報を解析
+        const exifDetails = parseExifData(dataUrl)
 
         return {
           success: true,
@@ -177,7 +159,7 @@ export const useFileUpload = () => {
         setIsUploading(false)
       }
     },
-    [readFileAsDataURL, parseExifData, createPngExifDetails],
+    [readFileAsDataURL, parseExifData],
   )
 
   /**
