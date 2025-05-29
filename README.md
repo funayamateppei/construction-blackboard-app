@@ -1,54 +1,42 @@
-# React + TypeScript + Vite
+# 工事黒板アプリ
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 概要
 
-Currently, two official plugins are available:
+工事黒板アプリは、画像に工事情報を追加するためのツールです。ユーザーは画像をアップロードし、工事名や工事日付を入力することで、黒板情報を画像に描画できます。さらに、Exifデータを保持したまま画像をダウンロードすることが可能です。
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 主な機能
 
-## Expanding the ESLint configuration
+- **画像アップロード**: ユーザーは画像をアップロードして編集を開始できます。
+- **工事情報の入力**: 工事名や工事日付を入力し、画像に黒板情報を追加できます。
+- **Exifデータの保持**: 画像のExifデータを編集し、ダウンロード時に保持します。
+- **画像プレビュー**: 編集後の画像をプレビューできます。
+- **画像ダウンロード**: 編集済みの画像をダウンロード可能です。
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 使用方法
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+1. 画像をアップロードします。
+2. 工事名と工事日付を入力します。
+3. 「工事黒板付きJPEG画像を生成」ボタンをクリックして画像を生成します。
+4. プレビューを確認し、ダウンロードボタンをクリックして画像を保存します。
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 開発環境
 
-```js
-// eslint.config.js
-import reactX from "eslint-plugin-react-x"
-import reactDom from "eslint-plugin-react-dom"
+- **フロントエンド**: React
+- **言語**: TypeScript
+- **ビルドツール**: Vite
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    "react-x": reactX,
-    "react-dom": reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs["recommended-typescript"].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+## インストールと実行
+
+1. リポジトリをクローンします。
+   ```bash
+   git clone <リポジトリURL>
+   ```
+2. 必要な依存関係をインストールします。
+   ```bash
+   npm install
+   ```
+3. 開発サーバーを起動します。
+   ```bash
+   npm run dev
+   ```
+4. ブラウザで `http://localhost:5174/construction-blackboard-app/` を開きます。
