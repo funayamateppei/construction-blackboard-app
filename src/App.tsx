@@ -3,107 +3,11 @@ import type {ChangeEvent} from "react"
 import piexif from "piexifjs"
 import "./App.css"
 
-// Exifデータが実質的な情報を含むかチェックするヘルパー関数
-function hasMeaningfulExif(exifData: piexif.ExifDict | null): boolean {
-  if (!exifData) return false
-  return (
-    (exifData["0th"] && Object.keys(exifData["0th"]).length > 0) ||
-    (exifData["Exif"] && Object.keys(exifData["Exif"]).length > 0) ||
-    (exifData["GPS"] && Object.keys(exifData["GPS"]).length > 0) ||
-    (exifData["Interop"] && Object.keys(exifData["Interop"]).length > 0) ||
-    (exifData["1st"] && Object.keys(exifData["1st"]).length > 0) ||
-    (!!exifData.thumbnail && typeof exifData.thumbnail === "string" && exifData.thumbnail.length > 0) ||
-    (!!exifData.thumbnail && typeof exifData.thumbnail !== "string" && (exifData.thumbnail as Uint8Array).length > 0)
-  )
-}
+// コンポーネントのインポート
+import {FileUpload, ConstructionInputs, ImagePreview, ExifDisplay, CanvasPreview, RotatedPreview} from "./components"
 
-// 日時を日本語形式に変換するヘルパー関数
-function formatDateTimeForDisplay(date: Date | null): string {
-  if (!date) return ""
-
-  try {
-    const year = date.getFullYear()
-    const month = date.getMonth() + 1
-    const day = date.getDate()
-    const hours = date.getHours().toString().padStart(2, "0")
-    const minutes = date.getMinutes().toString().padStart(2, "0")
-
-    return `${year}年${month}月${day}日 ${hours}:${minutes}`
-  } catch {
-    return "" // フォーマットに失敗した場合は空文字を返す
-  }
-}
-
-// Dateオブジェクトをdatetime-local形式の文字列に変換するヘルパー関数
-function formatDateForInput(date: Date | null): string {
-  if (!date) return ""
-
-  try {
-    const year = date.getFullYear()
-    const month = (date.getMonth() + 1).toString().padStart(2, "0")
-    const day = date.getDate().toString().padStart(2, "0")
-    const hours = date.getHours().toString().padStart(2, "0")
-    const minutes = date.getMinutes().toString().padStart(2, "0")
-
-    return `${year}-${month}-${day}T${hours}:${minutes}`
-  } catch {
-    return ""
-  }
-}
-
-// Exif情報から撮影日時を取得するヘルパー関数
-function extractDateTimeFromExif(exifData: piexif.ExifDict | null): Date | null {
-  if (!exifData) return null
-
-  try {
-    // DateTime, DateTimeOriginal, DateTimeDigitized の順で優先的に取得
-    const exifIfd = exifData["Exif"]
-    const zeroIfd = exifData["0th"]
-
-    let dateTimeString = ""
-
-    // Exif IFDから DateTimeOriginal を取得 (撮影日時)
-    if (exifIfd && exifIfd[piexif.ExifIFD.DateTimeOriginal]) {
-      dateTimeString = exifIfd[piexif.ExifIFD.DateTimeOriginal] as string
-    }
-    // Exif IFDから DateTimeDigitized を取得 (デジタル化日時)
-    else if (exifIfd && exifIfd[piexif.ExifIFD.DateTimeDigitized]) {
-      dateTimeString = exifIfd[piexif.ExifIFD.DateTimeDigitized] as string
-    }
-    // 0th IFDから DateTime を取得 (最終変更日時)
-    else if (zeroIfd && zeroIfd[piexif.ImageIFD.DateTime]) {
-      dateTimeString = zeroIfd[piexif.ImageIFD.DateTime] as string
-    }
-
-    if (dateTimeString) {
-      console.log("Original EXIF DateTime string:", dateTimeString)
-
-      // "YYYY:MM:DD HH:MM:SS" 形式をDateオブジェクトに変換
-      // 例: "2023:05:15 14:30:45" → "2023-05-15T14:30:45"
-      const parts = dateTimeString.split(" ")
-      if (parts.length === 2) {
-        const datePart = parts[0].replace(/:/g, "-") // "2023:05:15" → "2023-05-15"
-        const timePart = parts[1] // "14:30:45"
-        const isoString = `${datePart}T${timePart}`
-        console.log("Converted to ISO string:", isoString)
-
-        const date = new Date(isoString)
-        if (!isNaN(date.getTime())) {
-          console.log("Successfully parsed date:", date)
-          return date
-        } else {
-          console.log("Failed to parse date from ISO string")
-        }
-      } else {
-        console.log("Unexpected EXIF DateTime format:", dateTimeString)
-      }
-    }
-  } catch (error) {
-    console.error("Failed to extract DateTime from EXIF:", error)
-  }
-
-  return null
-}
+// ヘルパー関数のインポート
+import {hasMeaningfulExif, formatDateTimeForDisplay, extractDateTimeFromExif} from "./utils/helpers"
 
 function App() {
   const [originalImage, setOriginalImage] = useState<string | null>(null)
@@ -539,55 +443,17 @@ function App() {
       </header>
       <main>
         <section className="controls">
-          <label htmlFor="imageUpload" className="file-label">
-            画像を選択 (JPEG, PNG)
-          </label>
-          <input
-            type="file"
-            id="imageUpload"
-            accept="image/jpeg,image/png,.jpg,.jpeg,.png"
-            onChange={handleImageUpload}
-            style={{display: "none"}}
-          />
+          <FileUpload onImageUpload={handleImageUpload} hasImage={!!originalImage} />
 
           {originalImage && (
             <>
-              <div className="construction-inputs">
-                <div className="input-group">
-                  <label htmlFor="constructionName">工事名:</label>
-                  <input
-                    type="text"
-                    id="constructionName"
-                    value={constructionName}
-                    onChange={(e) => setConstructionName(e.target.value)}
-                    placeholder="例: 道路舗装工事"
-                  />
-                </div>
-
-                <div className="input-group">
-                  <label htmlFor="constructionDate">
-                    日時: {isDateFromExif && <span className="exif-label">(Exif情報から自動設定)</span>}
-                  </label>
-                  <input
-                    type="datetime-local"
-                    id="constructionDate"
-                    value={formatDateForInput(constructionDate)}
-                    onChange={(e) => {
-                      if (e.target.value) {
-                        setConstructionDate(new Date(e.target.value))
-                      } else {
-                        setConstructionDate(null)
-                      }
-                    }}
-                    disabled={isDateFromExif}
-                    style={{
-                      backgroundColor: isDateFromExif ? "#f0f0f0" : "white",
-                      cursor: isDateFromExif ? "not-allowed" : "text",
-                    }}
-                  />
-                  {isDateFromExif && <small className="exif-note">※ 撮影日時がExif情報から自動で設定されています</small>}
-                </div>
-              </div>
+              <ConstructionInputs
+                constructionName={constructionName}
+                onConstructionNameChange={setConstructionName}
+                constructionDate={constructionDate}
+                onConstructionDateChange={setConstructionDate}
+                isDateFromExif={isDateFromExif}
+              />
 
               <button onClick={handleProcessImage} disabled={!originalImage}>
                 工事黒板付きJPEG画像を生成 (Exif付与)
@@ -599,83 +465,19 @@ function App() {
         <img ref={imageLoaderRef} alt="Image loader for canvas" style={{display: "none"}} />
 
         <div className="content-layout">
-          <div className="column">
-            <h2>元画像</h2>
-            {originalImage ? (
-              <img src={originalImage} alt="Original" className="preview-image" />
-            ) : (
-              <p>画像が選択されていません</p>
-            )}
-            {originalImageType && <p>タイプ: {originalImageType}</p>}
-          </div>
+          <ImagePreview src={originalImage} alt="Original" title="元画像" type={originalImageType} />
 
-          <div className="column">
-            <h2>読み取られたExif情報 (JPEGの場合)</h2>
-            <pre className="exif-display">{originalExifStr || "Exif情報はありません / PNGが選択されています"}</pre>
-          </div>
+          <ExifDisplay exifData={originalExifStr} />
 
-          <div className="column">
-            <h2>工事黒板プレビュー (Canvas)</h2>
-            <canvas ref={canvasRef} className="canvas-preview" />
-            {!originalImage && <p>ここに工事黒板付きプレビューが表示されます</p>}
-          </div>
+          <CanvasPreview ref={canvasRef} hasImage={!!originalImage} />
 
-          <div className="column">
-            <h2>工事黒板付きJPEG画像</h2>
-            {processedImage ? (
-              <>
-                <div className="rotated-preview-container">
-                  <img
-                    src={rotatedPreviewImage || processedImage}
-                    alt="Construction board with EXIF"
-                    className={`rotated-preview-image rotation-${downloadRotation}`}
-                  />
-                </div>
-
-                <div className="download-section">
-                  <div className="rotation-controls">
-                    <label>回転とダウンロード:</label>
-                    <div className="rotation-buttons">
-                      <button
-                        type="button"
-                        onClick={() => setDownloadRotation(0)}
-                        className={downloadRotation === 0 ? "active" : ""}
-                      >
-                        0° 🔄
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setDownloadRotation(90)}
-                        className={downloadRotation === 90 ? "active" : ""}
-                      >
-                        90° ↻
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setDownloadRotation(180)}
-                        className={downloadRotation === 180 ? "active" : ""}
-                      >
-                        180° ↑↓
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setDownloadRotation(270)}
-                        className={downloadRotation === 270 ? "active" : ""}
-                      >
-                        270° ↺
-                      </button>
-                    </div>
-                  </div>
-
-                  <button onClick={handleRotatedDownload} className="download-button">
-                    工事黒板付き画像をダウンロード (.jpg)
-                  </button>
-                </div>
-              </>
-            ) : (
-              <p>工事黒板付き画像がここに表示されます</p>
-            )}
-          </div>
+          <RotatedPreview
+            processedImage={processedImage}
+            rotatedPreviewImage={rotatedPreviewImage}
+            downloadRotation={downloadRotation}
+            onRotationChange={setDownloadRotation}
+            onDownload={handleRotatedDownload}
+          />
         </div>
       </main>
     </div>
