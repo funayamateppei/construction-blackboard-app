@@ -6,6 +6,7 @@
 import {memo, useState, useCallback} from "react"
 import type {DynamicField} from "../types"
 import {isDuplicateKey} from "../utils/helpers"
+import {MUI} from "../ui"
 
 /**
  * 動的フィールド管理コンポーネントのプロパティ
@@ -59,69 +60,98 @@ const DynamicFieldsManager = memo(({dynamicFields, onAddField, onUpdateField, on
   }, [newKey, newValue, dynamicFields, onAddField])
 
   return (
-    <div className="dynamic-fields-manager">
-      <h3>📝 追加情報</h3>
+    <MUI.Box sx={{padding: 2}}>
+      <MUI.Typography variant="h5" gutterBottom>
+        📝 追加情報
+      </MUI.Typography>
 
       {/* 新しいフィールド追加フォーム */}
-      <div className="add-form">
-        <div className="input-row">
-          <input
-            type="text"
-            value={newKey}
-            onChange={(e) => {
-              setNewKey(e.target.value)
-              setError(null)
-            }}
-            placeholder="項目名 (例: 施工者, 天候)"
-            className="key-input"
-          />
-          <input
-            type="text"
-            value={newValue}
-            onChange={(e) => {
-              setNewValue(e.target.value)
-              setError(null)
-            }}
-            placeholder="内容 (例: 建設太郎, 晴れ)"
-            className="value-input"
-          />
-          <button onClick={handleAddField} disabled={!newKey.trim() || !newValue.trim()} className="add-button">
-            追加
-          </button>
-        </div>
-
-        {error && <div className="error-message">{error}</div>}
-      </div>
+      <MUI.Box sx={{marginBottom: 2}}>
+        <MUI.Grid container spacing={2} alignItems="center">
+          <MUI.Grid size={{xs: 5}}>
+            <MUI.TextField
+              fullWidth
+              value={newKey}
+              onChange={(e) => {
+                setNewKey(e.target.value)
+                setError(null)
+              }}
+              label="項目名"
+              placeholder="例: 施工者, 天候"
+              variant="outlined"
+              error={!!error && error.includes("項目名")}
+              helperText={error && error.includes("項目名") ? error : ""}
+            />
+          </MUI.Grid>
+          <MUI.Grid size={{xs: 5}}>
+            <MUI.TextField
+              fullWidth
+              value={newValue}
+              onChange={(e) => {
+                setNewValue(e.target.value)
+                setError(null)
+              }}
+              label="内容"
+              placeholder="例: 建設太郎, 晴れ"
+              variant="outlined"
+              error={!!error && error.includes("項目の値")}
+              helperText={error && error.includes("項目の値") ? error : ""}
+            />
+          </MUI.Grid>
+          <MUI.Grid size={{xs: 2}}>
+            <MUI.Button
+              variant="contained"
+              color="primary"
+              onClick={handleAddField}
+              disabled={!newKey.trim() || !newValue.trim()}
+            >
+              追加
+            </MUI.Button>
+          </MUI.Grid>
+        </MUI.Grid>
+        {error && !error.includes("項目名") && !error.includes("項目の値") && (
+          <MUI.Typography color="error" sx={{marginTop: 1}}>
+            {error}
+          </MUI.Typography>
+        )}
+      </MUI.Box>
 
       {/* 既存フィールドリスト */}
       {dynamicFields.length > 0 && (
-        <div className="fields-list">
-          <h4>追加済み項目</h4>
+        <MUI.Box>
+          <MUI.Typography variant="h6" gutterBottom>
+            追加済み項目
+          </MUI.Typography>
           {dynamicFields.map((field) => (
-            <div key={field.id} className="field-item">
-              <input
-                type="text"
-                value={field.key}
-                onChange={(e) => onUpdateField(field.id, e.target.value, field.value)}
-                placeholder="項目名"
-                className="field-key"
-              />
-              <span className="separator">:</span>
-              <input
-                type="text"
-                value={field.value}
-                onChange={(e) => onUpdateField(field.id, field.key, e.target.value)}
-                placeholder="値"
-                className="field-value"
-              />
-              <button onClick={() => onRemoveField(field.id)} className="remove-button" aria-label={`${field.key}を削除`}>
-                削除
-              </button>
-            </div>
+            <MUI.Grid container spacing={2} alignItems="center" key={field.id} sx={{marginBottom: 1}}>
+              <MUI.Grid size={{xs: 5}}>
+                <MUI.TextField
+                  fullWidth
+                  value={field.key}
+                  onChange={(e) => onUpdateField(field.id, e.target.value, field.value)}
+                  label="項目名"
+                  variant="outlined"
+                />
+              </MUI.Grid>
+              <MUI.Grid size={{xs: 5}}>
+                <MUI.TextField
+                  fullWidth
+                  value={field.value}
+                  onChange={(e) => onUpdateField(field.id, field.key, e.target.value)}
+                  label="値"
+                  variant="outlined"
+                />
+              </MUI.Grid>
+              <MUI.Grid size={{xs: 2}}>
+                <MUI.Button variant="outlined" color="secondary" onClick={() => onRemoveField(field.id)}>
+                  削除
+                </MUI.Button>
+              </MUI.Grid>
+            </MUI.Grid>
           ))}
-        </div>
+        </MUI.Box>
       )}
-    </div>
+    </MUI.Box>
   )
 })
 

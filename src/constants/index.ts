@@ -58,7 +58,7 @@ export const UI_SETTINGS = {
     PROCESSED_IMAGE: "工事黒板付きJPEG画像",
     EXIF_INFO: "読み取られたExif情報",
     IMAGE_TYPE: "タイプ",
-    DOWNLOAD_BUTTON: "工事黒板付き画像をダウンロード (.jpg)",
+    DOWNLOAD_BUTTON: "ダウンロード (.jpg)",
     EXIF_DATE_NOTE: "※ 撮影日時がExif情報から自動で設定されています",
   },
   PLACEHOLDERS: {

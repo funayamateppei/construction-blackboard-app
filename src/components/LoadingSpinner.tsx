@@ -1,4 +1,5 @@
 import {memo} from "react"
+import {MUI} from "../ui"
 
 /**
  * ローディングスピナーコンポーネントのプロパティ
@@ -35,42 +36,17 @@ export const LoadingSpinner = memo(({isLoading, message = "読み込み中...", 
     return null
   }
 
-  const containerStyle: React.CSSProperties = {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: inline ? "flex-start" : "center",
-    gap: "8px",
-    padding: inline ? "8px 0" : "16px",
-    fontSize: "14px",
-    color: "#6c757d",
-  }
-
-  const spinnerStyle: React.CSSProperties = {
-    width: "16px",
-    height: "16px",
-    border: `2px solid #f8f9fa`,
-    borderTop: `2px solid #007bff`,
-    borderRadius: "50%",
-    animation: `spinner-rotate 1s linear infinite`,
-  }
-
   return (
-    <>
-      {/* CSS アニメーション定義 */}
-      <style>
-        {`
-          @keyframes spinner-rotate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `}
-      </style>
-
-      <div style={containerStyle}>
-        <div style={spinnerStyle} aria-hidden="true" />
-        <span>{message}</span>
-      </div>
-    </>
+    <MUI.Stack
+      direction="row"
+      alignItems="center"
+      justifyContent={inline ? "flex-start" : "center"}
+      spacing={2}
+      sx={{py: inline ? 1 : 2, color: "text.secondary", fontSize: 14}}
+    >
+      <MUI.CircularProgress size={20} color="primary" thickness={5} />
+      <span>{message}</span>
+    </MUI.Stack>
   )
 })
 

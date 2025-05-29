@@ -1,6 +1,7 @@
 import {memo} from "react"
 import {formatDateForInput} from "../utils/helpers"
 import {UI_SETTINGS} from "../constants"
+import {MUI} from "../ui"
 
 /**
  * 工事情報入力コンポーネントのプロパティ
@@ -48,25 +49,32 @@ export const ConstructionInputs = memo(
     isDateFromExif,
   }: ConstructionInputsProps) => {
     return (
-      <div className="construction-inputs">
-        <div className="input-group">
-          <label htmlFor="constructionName">{UI_SETTINGS.LABELS.CONSTRUCTION_NAME}:</label>
-          <input
-            type="text"
-            id="constructionName"
+      <MUI.Box sx={{padding: 2}}>
+        <MUI.Box sx={{marginBottom: 2}}>
+          <MUI.Typography variant="h6" gutterBottom>
+            {UI_SETTINGS.LABELS.CONSTRUCTION_NAME}:
+          </MUI.Typography>
+          <MUI.TextField
+            fullWidth
             value={constructionName}
             onChange={(e) => onConstructionNameChange(e.target.value)}
             placeholder={UI_SETTINGS.PLACEHOLDERS.CONSTRUCTION_NAME}
+            variant="outlined"
           />
-        </div>
+        </MUI.Box>
 
-        <div className="input-group">
-          <label htmlFor="constructionDate">
-            {UI_SETTINGS.LABELS.DATE}: {isDateFromExif && <span className="exif-label">(Exif情報から自動設定)</span>}
-          </label>
-          <input
+        <MUI.Box>
+          <MUI.Typography variant="h6" gutterBottom>
+            {UI_SETTINGS.LABELS.DATE}:{" "}
+            {isDateFromExif && (
+              <MUI.Typography component="span" variant="body2" color="textSecondary">
+                (Exif情報から自動設定)
+              </MUI.Typography>
+            )}
+          </MUI.Typography>
+          <MUI.TextField
+            fullWidth
             type="datetime-local"
-            id="constructionDate"
             value={formatDateForInput(constructionDate)}
             onChange={(e) => {
               if (e.target.value) {
@@ -76,14 +84,21 @@ export const ConstructionInputs = memo(
               }
             }}
             disabled={isDateFromExif}
-            style={{
-              backgroundColor: isDateFromExif ? UI_SETTINGS.COLORS.DISABLED_BACKGROUND : UI_SETTINGS.COLORS.INPUT_BACKGROUND,
-              cursor: isDateFromExif ? "not-allowed" : "text",
+            variant="outlined"
+            InputProps={{
+              style: {
+                backgroundColor: isDateFromExif ? UI_SETTINGS.COLORS.DISABLED_BACKGROUND : UI_SETTINGS.COLORS.INPUT_BACKGROUND,
+                cursor: isDateFromExif ? "not-allowed" : "text",
+              },
             }}
           />
-          {isDateFromExif && <small className="exif-note">{UI_SETTINGS.LABELS.EXIF_DATE_NOTE}</small>}
-        </div>
-      </div>
+          {isDateFromExif && (
+            <MUI.Typography variant="body2" color="textSecondary" sx={{marginTop: 1}}>
+              {UI_SETTINGS.LABELS.EXIF_DATE_NOTE}
+            </MUI.Typography>
+          )}
+        </MUI.Box>
+      </MUI.Box>
     )
   },
 )

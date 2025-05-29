@@ -1,5 +1,6 @@
 import {memo, useCallback} from "react"
 import {UI_SETTINGS, FILE_CONFIG} from "../constants"
+import {MUI, MuiIcons} from "../ui"
 
 /**
  * プレビューコンポーネントのプロパティ
@@ -43,23 +44,48 @@ export const Preview = memo(({processedImage}: PreviewProps) => {
   }, [processedImage])
 
   return (
-    <div className="column">
-      <h2>{UI_SETTINGS.LABELS.PROCESSED_IMAGE}</h2>
-      {processedImage ? (
-        <>
-          <div className="preview-container">
-            <img src={processedImage} alt={UI_SETTINGS.ALT_TEXTS.PROCESSED_IMAGE} className="preview-image" />
-          </div>
-
-          <div className="download-section">
-            <button onClick={handleDownload} className="download-button">
+    <MUI.Paper elevation={2} sx={{p: 3, mb: 2}}>
+      <MUI.Stack spacing={2} alignItems="center">
+        <MUI.Typography variant="h6" color="text.primary" sx={{fontWeight: 700}}>
+          {UI_SETTINGS.LABELS.PROCESSED_IMAGE}
+        </MUI.Typography>
+        {processedImage ? (
+          <>
+            <MUI.Box
+              sx={{
+                width: "100%",
+                maxWidth: 360,
+                borderRadius: 0.5,
+                overflow: "hidden",
+                boxShadow: 2,
+                bgcolor: "grey.100",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <img
+                src={processedImage}
+                alt={UI_SETTINGS.ALT_TEXTS.PROCESSED_IMAGE}
+                style={{width: "100%", height: "auto", objectFit: "contain"}}
+              />
+            </MUI.Box>
+            <MUI.Button
+              onClick={handleDownload}
+              variant="contained"
+              color="success"
+              startIcon={<MuiIcons.Download />}
+              sx={{mt: 2, borderRadius: 20, fontWeight: 700}}
+            >
               {UI_SETTINGS.LABELS.DOWNLOAD_BUTTON}
-            </button>
-          </div>
-        </>
-      ) : (
-        <p>{UI_SETTINGS.PLACEHOLDERS.PROCESSED_IMAGE}</p>
-      )}
-    </div>
+            </MUI.Button>
+          </>
+        ) : (
+          <MUI.Typography variant="body2" color="text.secondary">
+            {UI_SETTINGS.PLACEHOLDERS.PROCESSED_IMAGE}
+          </MUI.Typography>
+        )}
+      </MUI.Stack>
+    </MUI.Paper>
   )
 })

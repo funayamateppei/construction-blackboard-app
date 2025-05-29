@@ -4,7 +4,6 @@
  */
 
 import React, {useCallback, useEffect} from "react"
-import "./App.css"
 
 // 型定義のインポート
 import type {ChangeEvent} from "react"
@@ -28,6 +27,9 @@ import {
 // 定数のインポート
 import {APP_INFO} from "./constants"
 import {drawConstructionBoard, validateRequiredFields} from "./utils"
+
+// MUIコンポーネントのインポート
+import {MUI} from "./ui"
 
 /**
  * 工事黒板アプリケーションのメインコンポーネント
@@ -161,15 +163,21 @@ function App(): React.JSX.Element {
   ])
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>
-          {APP_INFO.NAME} - {APP_INFO.DESCRIPTION} 📋✨
-        </h1>
-      </header>
+    <MUI.Stack sx={{p: 4}}>
+      <MUI.Paper elevation={3} sx={{p: {xs: 2, sm: 4}, mb: 4}}>
+        <MUI.Typography variant="h4" component="h1" color="primary" fontWeight={700} align="center" gutterBottom>
+          {APP_INFO.NAME} - {APP_INFO.DESCRIPTION}{" "}
+          <span role="img" aria-label="clipboard">
+            📋
+          </span>
+          <span role="img" aria-label="sparkles">
+            ✨
+          </span>
+        </MUI.Typography>
+      </MUI.Paper>
 
-      <main>
-        <section className="controls">
+      <MUI.Stack spacing={3}>
+        <MUI.Paper elevation={1} sx={{p: {xs: 2, sm: 3}}}>
           <FileUpload onImageUpload={handleFileUpload} hasImage={!!state.originalImage} />
 
           {state.originalImage && (
@@ -191,33 +199,43 @@ function App(): React.JSX.Element {
 
               <LoadingSpinner isLoading={isProcessing} message="工事黒板を生成中..." inline />
 
-              <button onClick={handleImageProcess} disabled={!state.originalImage || isProcessing}>
+              <MUI.Button
+                onClick={handleImageProcess}
+                disabled={!state.originalImage || isProcessing}
+                variant="contained"
+                color="primary"
+                sx={{mt: 2, borderRadius: 20, fontWeight: 700}}
+                fullWidth
+              >
                 {isProcessing ? "処理中..." : "工事黒板付きJPEG画像を生成 (Exif付与)"}
-              </button>
+              </MUI.Button>
             </>
           )}
-        </section>
+        </MUI.Paper>
 
-        {/* エラー表示 */}
         <ErrorDisplay error={state.error} uploadError={uploadError} processError={processError} />
 
-        {/* 非表示の画像ローダー */}
         <img ref={imageLoaderRef} alt="Image loader for canvas" style={{display: "none"}} />
 
-        <div className="content-layout">
-          <ImagePreview
-            src={state.originalImage?.dataUrl || null}
-            type={(state.originalImage?.type as "image/jpeg" | null) || null}
-          />
-
-          <ExifDisplay exifData={state.exifDetails.displayString} />
-
-          <CanvasPreview ref={canvasRef} hasImage={!!state.originalImage} />
-
-          <Preview processedImage={state.processedImage} />
-        </div>
-      </main>
-    </div>
+        <MUI.Grid container spacing={3}>
+          <MUI.Grid size={{xs: 12, md: 3}}>
+            <ImagePreview
+              src={state.originalImage?.dataUrl || null}
+              type={(state.originalImage?.type as "image/jpeg" | null) || null}
+            />
+          </MUI.Grid>
+          <MUI.Grid size={{xs: 12, md: 3}}>
+            <ExifDisplay exifData={state.exifDetails.displayString} />
+          </MUI.Grid>
+          <MUI.Grid size={{xs: 12, md: 3}}>
+            <CanvasPreview ref={canvasRef} hasImage={!!state.originalImage} />
+          </MUI.Grid>
+          <MUI.Grid size={{xs: 12, md: 3}}>
+            <Preview processedImage={state.processedImage} />
+          </MUI.Grid>
+        </MUI.Grid>
+      </MUI.Stack>
+    </MUI.Stack>
   )
 }
 

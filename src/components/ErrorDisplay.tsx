@@ -1,5 +1,6 @@
 import {memo} from "react"
 import type {AppError} from "../types"
+import {MUI, MuiIcons} from "../ui"
 
 /**
  * エラー表示コンポーネントのプロパティ
@@ -48,66 +49,42 @@ export const ErrorDisplay = memo(({error, uploadError, processError, onDismiss}:
   }
 
   return (
-    <div
-      className="error-display"
-      style={{
-        backgroundColor: "#dc3545",
-        color: "#ffffff",
-        padding: "12px 16px",
-        borderRadius: "6px",
-        marginBottom: "16px",
-        position: "relative",
-        fontSize: "14px",
-        lineHeight: "1.4",
-        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-      }}
-    >
-      <div style={{display: "flex", justifyContent: "space-between", alignItems: "flex-start"}}>
-        <div style={{flex: 1, paddingRight: onDismiss ? "12px" : "0"}}>
-          <strong>エラー:</strong> {displayError}
-        </div>
-
-        {onDismiss && (
-          <button
+    <MUI.Alert
+      severity="error"
+      sx={{mb: 2, fontSize: 14, alignItems: "flex-start"}}
+      action={
+        onDismiss && (
+          <MUI.IconButton
             onClick={onDismiss}
-            style={{
-              background: "transparent",
-              border: "none",
-              color: "#ffffff",
-              cursor: "pointer",
-              fontSize: "18px",
-              lineHeight: "1",
-              padding: "0",
-              minWidth: "20px",
-              height: "20px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
+            color="inherit"
+            size="small"
             aria-label="エラーメッセージを閉じる"
             title="エラーメッセージを閉じる"
           >
-            ×
-          </button>
-        )}
-      </div>
-
+            <MuiIcons.Close fontSize="inherit" />
+          </MUI.IconButton>
+        )
+      }
+    >
+      <MUI.Typography component="span" fontWeight={700} sx={{mr: 1}}>
+        エラー:
+      </MUI.Typography>
+      {displayError}
       {hasDetails && (
-        <details style={{marginTop: "8px"}}>
-          <summary style={{cursor: "pointer", fontSize: "12px", opacity: 0.9}}>詳細情報</summary>
-          <pre
-            style={{
-              fontSize: "11px",
-              margin: "8px 0 0 0",
-              whiteSpace: "pre-wrap",
-              opacity: 0.8,
-            }}
-          >
-            {String(detailsText)}
-          </pre>
-        </details>
+        <MUI.Accordion sx={{mt: 1, bgcolor: "error.50"}}>
+          <MUI.AccordionSummary expandIcon={<MuiIcons.ExpandMore />}>
+            <MUI.Typography fontSize={13} color="error.main">
+              詳細情報
+            </MUI.Typography>
+          </MUI.AccordionSummary>
+          <MUI.AccordionDetails>
+            <MUI.Box component="pre" sx={{fontSize: 12, whiteSpace: "pre-wrap", opacity: 0.8, m: 0}}>
+              {String(detailsText)}
+            </MUI.Box>
+          </MUI.AccordionDetails>
+        </MUI.Accordion>
       )}
-    </div>
+    </MUI.Alert>
   )
 })
 

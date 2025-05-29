@@ -4,6 +4,7 @@
  */
 
 import {memo, useState, useCallback} from "react"
+import {MUI, MuiIcons} from "../ui"
 import type {DynamicField} from "../types"
 import {isDuplicateKey} from "../utils/helpers"
 
@@ -83,92 +84,130 @@ export const ConstructionInfoInput = memo(
     }, [])
 
     return (
-      <div className="construction-info-input">
-        {/* 工事名入力 */}
-        <div className="input-group">
-          <label htmlFor="constructionName">🏗️ 工事名 *</label>
-          <input
-            id="constructionName"
-            type="text"
+      <MUI.Paper elevation={2} sx={{p: 3, mb: 2}}>
+        <MUI.Stack spacing={2}>
+          {/* 工事名入力 */}
+          <MUI.TextField
+            fullWidth
+            required
+            label="🏗️ 工事名"
             value={constructionName}
             onChange={(e) => onConstructionNameChange(e.target.value)}
             placeholder="工事名を入力してください（必須）"
-            required
-            className="input-field"
+            variant="outlined"
+            InputProps={{
+              startAdornment: (
+                <MUI.InputAdornment position="start">
+                  <MuiIcons.Construction color="primary" />
+                </MUI.InputAdornment>
+              ),
+            }}
           />
-        </div>
 
-        {/* 動的フィールドリスト */}
-        {dynamicFields.map((field) => (
-          <div key={field.id} className="input-group dynamic-field">
-            <div className="field-inputs">
-              <input
-                type="text"
-                value={field.key}
-                onChange={(e) => onUpdateField(field.id, e.target.value, field.value)}
-                placeholder="項目名"
-                className="field-key-input"
-              />
-              <input
-                type="text"
-                value={field.value}
-                onChange={(e) => onUpdateField(field.id, field.key, e.target.value)}
-                placeholder="値"
-                className="field-value-input"
-              />
-              <button onClick={() => onRemoveField(field.id)} className="remove-button" aria-label={`${field.key}を削除`}>
-                ✕
-              </button>
-            </div>
-          </div>
-        ))}
+          {/* 動的フィールドリスト */}
+          {dynamicFields.map((field) => (
+            <MUI.Box key={field.id} sx={{ml: 2, pl: 2, borderLeft: "3px solid", borderColor: "primary.light"}}>
+              <MUI.Stack direction="row" spacing={1} alignItems="center">
+                <MUI.TextField
+                  size="small"
+                  value={field.key}
+                  onChange={(e) => onUpdateField(field.id, e.target.value, field.value)}
+                  placeholder="項目名"
+                  variant="outlined"
+                  sx={{flex: 1}}
+                />
+                <MUI.Typography variant="body2" color="text.secondary">
+                  :
+                </MUI.Typography>
+                <MUI.TextField
+                  size="small"
+                  value={field.value}
+                  onChange={(e) => onUpdateField(field.id, field.key, e.target.value)}
+                  placeholder="値"
+                  variant="outlined"
+                  sx={{flex: 1}}
+                />
+                <MUI.IconButton
+                  onClick={() => onRemoveField(field.id)}
+                  color="error"
+                  size="small"
+                  aria-label={`${field.key}を削除`}
+                >
+                  <MuiIcons.Close />
+                </MUI.IconButton>
+              </MUI.Stack>
+            </MUI.Box>
+          ))}
 
-        {/* 新しいフィールド追加フォーム */}
-        {showAddForm && (
-          <div className="input-group add-field-form">
-            <div className="field-inputs">
-              <input
-                type="text"
-                value={newKey}
-                onChange={(e) => {
-                  setNewKey(e.target.value)
-                  setError(null)
-                }}
-                placeholder="項目名 (例: 施工者)"
-                className="field-key-input"
-              />
-              <input
-                type="text"
-                value={newValue}
-                onChange={(e) => {
-                  setNewValue(e.target.value)
-                  setError(null)
-                }}
-                placeholder="内容 (例: 建設太郎)"
-                className="field-value-input"
-              />
-              <div className="form-buttons">
-                <button onClick={handleAddField} disabled={!newKey.trim() || !newValue.trim()} className="add-button">
-                  ✓
-                </button>
-                <button onClick={handleCancel} className="cancel-button">
-                  ✕
-                </button>
-              </div>
-            </div>
-            {error && <div className="error-message">{error}</div>}
-          </div>
-        )}
+          {/* 新しいフィールド追加フォーム */}
+          {showAddForm && (
+            <MUI.Box sx={{ml: 2, pl: 2, borderLeft: "3px solid", borderColor: "success.main", bgcolor: "success.50"}}>
+              <MUI.Stack spacing={1}>
+                <MUI.Stack direction="row" spacing={1} alignItems="center">
+                  <MUI.TextField
+                    size="small"
+                    value={newKey}
+                    onChange={(e) => {
+                      setNewKey(e.target.value)
+                      setError(null)
+                    }}
+                    placeholder="項目名 (例: 施工者)"
+                    variant="outlined"
+                    sx={{flex: 1}}
+                  />
+                  <MUI.Typography variant="body2" color="text.secondary">
+                    :
+                  </MUI.Typography>
+                  <MUI.TextField
+                    size="small"
+                    value={newValue}
+                    onChange={(e) => {
+                      setNewValue(e.target.value)
+                      setError(null)
+                    }}
+                    placeholder="内容 (例: 建設太郎)"
+                    variant="outlined"
+                    sx={{flex: 1}}
+                  />
+                  <MUI.Stack direction="row" spacing={0.5}>
+                    <MUI.IconButton
+                      onClick={handleAddField}
+                      disabled={!newKey.trim() || !newValue.trim()}
+                      color="success"
+                      size="small"
+                    >
+                      <MuiIcons.Check />
+                    </MUI.IconButton>
+                    <MUI.IconButton onClick={handleCancel} color="error" size="small">
+                      <MuiIcons.Close />
+                    </MUI.IconButton>
+                  </MUI.Stack>
+                </MUI.Stack>
+                {error && (
+                  <MUI.Alert severity="error" sx={{mt: 1}}>
+                    {error}
+                  </MUI.Alert>
+                )}
+              </MUI.Stack>
+            </MUI.Box>
+          )}
 
-        {/* プラスボタン */}
-        {!showAddForm && (
-          <div className="add-field-trigger">
-            <button onClick={() => setShowAddForm(true)} className="plus-button">
-              ➕ 項目を追加
-            </button>
-          </div>
-        )}
-      </div>
+          {/* プラスボタン */}
+          {!showAddForm && (
+            <MUI.Box sx={{textAlign: "center", mt: 1}}>
+              <MUI.Button
+                onClick={() => setShowAddForm(true)}
+                variant="outlined"
+                color="info"
+                startIcon={<MuiIcons.Add />}
+                sx={{borderRadius: 20}}
+              >
+                項目を追加
+              </MUI.Button>
+            </MUI.Box>
+          )}
+        </MUI.Stack>
+      </MUI.Paper>
     )
   },
 )

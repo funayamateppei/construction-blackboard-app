@@ -1,4 +1,5 @@
 import {memo} from "react"
+import {MUI} from "../ui"
 import {UI_SETTINGS} from "../constants"
 
 /**
@@ -26,9 +27,27 @@ interface ExifDisplayProps {
  */
 export const ExifDisplay = memo(({exifData}: ExifDisplayProps) => {
   return (
-    <div className="column">
-      <h2>{UI_SETTINGS.LABELS.EXIF_INFO}</h2>
-      <pre className="exif-display">{exifData || UI_SETTINGS.PLACEHOLDERS.NO_EXIF_DATA}</pre>
-    </div>
+    <MUI.Paper elevation={2} sx={{p: 3, mb: 2}}>
+      <MUI.Stack spacing={2}>
+        <MUI.Typography variant="h6" color="text.primary" sx={{fontWeight: 700}}>
+          {UI_SETTINGS.LABELS.EXIF_INFO}
+        </MUI.Typography>
+        <MUI.Box
+          sx={{
+            bgcolor: "grey.100",
+            borderRadius: 1,
+            p: 2,
+            fontFamily: "monospace",
+            fontSize: 14,
+            whiteSpace: "pre-wrap",
+            minHeight: 64,
+            maxHeight: 500,
+            overflowY: "auto",
+          }}
+        >
+          {exifData || UI_SETTINGS.PLACEHOLDERS.NO_EXIF_DATA}
+        </MUI.Box>
+      </MUI.Stack>
+    </MUI.Paper>
   )
 })

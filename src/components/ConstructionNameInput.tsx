@@ -5,6 +5,7 @@
 
 import {memo} from "react"
 import {UI_SETTINGS} from "../constants"
+import {MUI} from "../ui"
 
 /**
  * 工事名入力コンポーネントのプロパティ
@@ -35,18 +36,18 @@ interface ConstructionNameInputProps {
  */
 export const ConstructionNameInput = memo(({constructionName, onConstructionNameChange}: ConstructionNameInputProps) => {
   return (
-    <div className="construction-inputs">
-      <div className="input-group">
-        <label htmlFor="constructionName">{UI_SETTINGS.LABELS.CONSTRUCTION_NAME}:</label>
-        <input
-          type="text"
-          id="constructionName"
-          value={constructionName}
-          onChange={(e) => onConstructionNameChange(e.target.value)}
-          placeholder={UI_SETTINGS.PLACEHOLDERS.CONSTRUCTION_NAME}
-        />
-      </div>
-    </div>
+    <MUI.Box sx={{padding: 2}}>
+      <MUI.Typography variant="h6" gutterBottom>
+        {UI_SETTINGS.LABELS.CONSTRUCTION_NAME}:
+      </MUI.Typography>
+      <MUI.TextField
+        fullWidth
+        value={constructionName}
+        onChange={(e) => onConstructionNameChange(e.target.value)}
+        placeholder={UI_SETTINGS.PLACEHOLDERS.CONSTRUCTION_NAME}
+        variant="outlined"
+      />
+    </MUI.Box>
   )
 })
 

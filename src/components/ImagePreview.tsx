@@ -1,4 +1,5 @@
 import {memo} from "react"
+import {MUI, MuiIcons} from "../ui"
 import {UI_SETTINGS} from "../constants"
 import type {SupportedImageType} from "../types"
 
@@ -32,20 +33,48 @@ interface ImagePreviewProps {
  */
 export const ImagePreview = memo(({src, type}: ImagePreviewProps) => {
   return (
-    <div className="column">
-      <h2>{UI_SETTINGS.LABELS.ORIGINAL_IMAGE}</h2>
-      {src ? (
-        <>
-          <img src={src} alt={UI_SETTINGS.ALT_TEXTS.ORIGINAL_IMAGE} className="preview-image" />
-          {type && (
-            <p>
-              {UI_SETTINGS.LABELS.IMAGE_TYPE}: {type.split("/")[1].toUpperCase()}
-            </p>
-          )}
-        </>
-      ) : (
-        <p>{UI_SETTINGS.PLACEHOLDERS.NO_IMAGE_SELECTED}</p>
-      )}
-    </div>
+    <MUI.Paper elevation={2} sx={{p: 3, mb: 2}}>
+      <MUI.Stack spacing={2} alignItems="center">
+        <MUI.Typography variant="h6" color="text.primary" sx={{fontWeight: 700}}>
+          {UI_SETTINGS.LABELS.ORIGINAL_IMAGE}
+        </MUI.Typography>
+        {src ? (
+          <>
+            <MUI.Box
+              sx={{
+                width: "100%",
+                maxWidth: 360,
+                borderRadius: 0.5,
+                overflow: "hidden",
+                boxShadow: 2,
+                bgcolor: "grey.100",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <img
+                src={src}
+                alt={UI_SETTINGS.ALT_TEXTS.ORIGINAL_IMAGE}
+                style={{width: "100%", height: "100%", objectFit: "contain"}}
+              />
+            </MUI.Box>
+            {type && (
+              <MUI.Chip
+                icon={<MuiIcons.Image />}
+                label={`${UI_SETTINGS.LABELS.IMAGE_TYPE}: ${type.split("/")[1].toUpperCase()}`}
+                color="primary"
+                size="small"
+                sx={{mt: 1}}
+              />
+            )}
+          </>
+        ) : (
+          <MUI.Typography variant="body2" color="text.secondary">
+            {UI_SETTINGS.PLACEHOLDERS.NO_IMAGE_SELECTED}
+          </MUI.Typography>
+        )}
+      </MUI.Stack>
+    </MUI.Paper>
   )
 })

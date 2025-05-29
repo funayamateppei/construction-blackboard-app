@@ -4,6 +4,7 @@
  */
 
 import {memo} from "react"
+import {MUI, MuiIcons} from "../ui"
 import {formatDateForInput} from "../utils/helpers"
 import {UI_SETTINGS} from "../constants"
 
@@ -39,16 +40,14 @@ interface ConstructionDateInputProps {
  * ```
  */
 export const ConstructionDateInput = memo(
-  ({ constructionDate, onConstructionDateChange, isDateFromExif }: ConstructionDateInputProps) => {
+  ({constructionDate, onConstructionDateChange, isDateFromExif}: ConstructionDateInputProps) => {
     return (
-      <div className="construction-inputs">
-        <div className="input-group">
-          <label htmlFor="constructionDate">
-            {UI_SETTINGS.LABELS.DATE}: {isDateFromExif && <span className="exif-label">(Exif情報から自動設定)</span>}
-          </label>
-          <input
+      <MUI.Paper elevation={2} sx={{p: 3, mb: 2}}>
+        <MUI.Stack spacing={2}>
+          <MUI.TextField
+            fullWidth
             type="datetime-local"
-            id="constructionDate"
+            label={UI_SETTINGS.LABELS.DATE}
             value={formatDateForInput(constructionDate)}
             onChange={(e) => {
               if (e.target.value) {
@@ -58,16 +57,32 @@ export const ConstructionDateInput = memo(
               }
             }}
             disabled={isDateFromExif}
-            style={{
-              backgroundColor: isDateFromExif ? UI_SETTINGS.COLORS.DISABLED_BACKGROUND : UI_SETTINGS.COLORS.INPUT_BACKGROUND,
-              cursor: isDateFromExif ? "not-allowed" : "text",
+            variant="outlined"
+            InputProps={{
+              startAdornment: (
+                <MUI.InputAdornment position="start">
+                  <MuiIcons.DateRange color={isDateFromExif ? "disabled" : "primary"} />
+                </MUI.InputAdornment>
+              ),
+            }}
+            sx={{
+              "& .MuiInputBase-input:disabled": {
+                backgroundColor: isDateFromExif ? "action.disabledBackground" : "background.paper",
+                cursor: isDateFromExif ? "not-allowed" : "text",
+              },
             }}
           />
-          {isDateFromExif && <small className="exif-note">{UI_SETTINGS.LABELS.EXIF_DATE_NOTE}</small>}
-        </div>
-      </div>
+
+          {isDateFromExif && (
+            <MUI.Alert severity="info" icon={<MuiIcons.Camera />} sx={{mt: 1}}>
+              <MUI.AlertTitle>📷 Exif情報から自動設定</MUI.AlertTitle>
+              {UI_SETTINGS.LABELS.EXIF_DATE_NOTE}
+            </MUI.Alert>
+          )}
+        </MUI.Stack>
+      </MUI.Paper>
     )
-  }
+  },
 )
 
 ConstructionDateInput.displayName = "ConstructionDateInput"
