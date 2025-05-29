@@ -315,7 +315,311 @@
   height: auto;
 }
 
-/* Responsive adjustments */
+/* DynamicFieldsManager スタイル */
+.dynamic-fields-manager {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.dynamic-fields-manager h3 {
+  margin: 0 0 16px 0;
+  color: #343a40;
+  font-size: 1.1em;
+}
+
+.add-form {
+  margin-bottom: 20px;
+}
+
+.input-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.key-input,
+.value-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 8px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.key-input:focus,
+.value-input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.add-button {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.add-button:hover:not(:disabled) {
+  background: #0056b3;
+}
+
+.add-button:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
+.error-message {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  border: 1px solid #f5c6cb;
+}
+
+.fields-list {
+  border-top: 1px solid #dee2e6;
+  padding-top: 16px;
+}
+
+.fields-list h4 {
+  margin: 0 0 12px 0;
+  color: #495057;
+  font-size: 1em;
+}
+
+.field-item {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 8px;
+  background: white;
+  border-radius: 4px;
+  border: 1px solid #e9ecef;
+}
+
+.field-key,
+.field-value {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid #ced4da;
+  border-radius: 3px;
+  font-size: 13px;
+}
+
+.field-key:focus,
+.field-value:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.separator {
+  color: #6c757d;
+  font-weight: bold;
+  min-width: 16px;
+  text-align: center;
+}
+
+.remove-button {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.remove-button:hover {
+  background: #c82333;
+}
+
+/* Construction Info Input Component */
+.construction-info-input {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 10px 0;
+}
+
+.input-group {
+  margin-bottom: 12px;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #333;
+}
+
+.input-field {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.dynamic-field {
+  margin-left: 20px;
+  border-left: 3px solid #e9ecef;
+  padding-left: 12px;
+}
+
+.field-inputs {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.field-key-input,
+.field-value-input {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.field-key-input:focus,
+.field-value-input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.remove-button {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  min-width: 32px;
+}
+
+.remove-button:hover {
+  background: #c82333;
+}
+
+.add-field-form {
+  margin-left: 20px;
+  border-left: 3px solid #28a745;
+  padding-left: 12px;
+  background: #f8fff8;
+}
+
+.form-buttons {
+  display: flex;
+  gap: 4px;
+}
+
+.add-button {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  min-width: 32px;
+}
+
+.add-button:hover:not(:disabled) {
+  background: #218838;
+}
+
+.add-button:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
+.cancel-button {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 8px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  min-width: 32px;
+}
+
+.cancel-button:hover {
+  background: #5a6268;
+}
+
+.add-field-trigger {
+  text-align: center;
+  margin-top: 8px;
+}
+
+.plus-button {
+  background: #17a2b8;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.plus-button:hover {
+  background: #138496;
+}
+
+.error-message {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  border: 1px solid #f5c6cb;
+  margin-top: 4px;
+}
+
+/* Responsive styles for Construction Info Input */
+@media (max-width: 768px) {
+  .field-inputs {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .field-key-input,
+  .field-value-input {
+    min-width: unset;
+  }
+
+  .form-buttons {
+    flex-direction: row;
+    justify-content: center;
+  }
+}
+
 @media (max-width: 768px) {
   .App-header h1 {
     font-size: 1.5em;
@@ -344,5 +648,23 @@
   .input-group input {
     width: 100%;
     max-width: 300px;
+  }
+
+  .input-row {
+    flex-direction: column;
+  }
+
+  .key-input,
+  .value-input {
+    min-width: unset;
+  }
+
+  .field-item {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .separator {
+    display: none;
   }
 }

@@ -48,7 +48,14 @@ export const useImageProcessor = () => {
           ctx.drawImage(imageLoader, 0, 0, imageLoader.naturalWidth, imageLoader.naturalHeight)
 
           // 工事黒板を描画
-          drawConstructionBoard(ctx, canvas.width, canvas.height, constructionInfo.name, constructionInfo.date)
+          drawConstructionBoard(
+            ctx,
+            canvas.width,
+            canvas.height,
+            constructionInfo.name,
+            constructionInfo.date,
+            constructionInfo.dynamicFields,
+          )
 
           resolve()
         } catch (error) {

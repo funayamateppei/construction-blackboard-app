@@ -5,6 +5,7 @@
 
 import piexif from "piexifjs"
 import type {ExifDict} from "piexifjs"
+import type {DynamicField} from "../types"
 
 /**
  * Exifデータが実質的な情報を含むかチェックするヘルパー関数
@@ -190,4 +191,54 @@ export function extractExifDetails(exifData: ExifDict | null): {
   }
 
   return {dateTime, gpsInfo}
+}
+
+/**
+ * 必須フィールドのバリデーション関数
+ * @param name - 工事名
+ * @param date - 工事日時
+ * @returns バリデーション結果
+ * @description 工事名と日時が両方とも入力されているかチェックします
+ */
+export function validateRequiredFields(
+  name: string,
+  date: Date | null,
+): {
+  isValid: boolean
+  errors: string[]
+} {
+  const errors: string[] = []
+
+  if (!name.trim()) {
+    errors.push("工事名は必須です")
+  }
+
+  if (!date) {
+    errors.push("工事日時は必須です")
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors,
+  }
+}
+
+/**
+ * ユニークIDを生成するヘルパー関数
+ * @returns ユニークな文字列ID
+ * @description 動的フィールド用のIDを生成します
+ */
+export function generateUniqueId(): string {
+  return `field_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+}
+
+/**
+ * 動的フィールドの重複キーをチェックする関数
+ * @param fields - 現在のフィールド配列
+ * @param newKey - 新しいキー
+ * @param excludeId - 除外するフィールドID（編集時に使用）
+ * @returns 重複の有無
+ */
+export function isDuplicateKey(fields: DynamicField[], newKey: string, excludeId?: string): boolean {
+  return fields.some((field) => field.key.trim().toLowerCase() === newKey.trim().toLowerCase() && field.id !== excludeId)
 }

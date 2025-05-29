@@ -4,7 +4,8 @@
  */
 
 import {useState, useCallback, useEffect} from "react"
-import type {AppState, ImageInfo, ExifDetails} from "../types"
+import type {AppState, ImageInfo, ExifDetails, DynamicField} from "../types"
+import {generateUniqueId} from "../utils/helpers"
 
 /**
  * アプリケーション状態管理の初期値
@@ -21,6 +22,7 @@ const initialState: AppState = {
     name: "",
     date: null,
     isDateFromExif: false,
+    dynamicFields: [],
   },
   processedImage: null,
   error: null,
@@ -190,6 +192,55 @@ export const useConstructionBoardApp = () => {
     }
   }, [state, hasConstructionInfo, canProcessImage])
 
+  /**
+   * 動的フィールドを追加する
+   */
+  const addDynamicField = useCallback((key: string, value: string) => {
+    setState((prev) => {
+      const newField: DynamicField = {
+        id: generateUniqueId(),
+        key: key.trim(),
+        value: value.trim(),
+      }
+
+      return {
+        ...prev,
+        constructionInfo: {
+          ...prev.constructionInfo,
+          dynamicFields: [...prev.constructionInfo.dynamicFields, newField],
+        },
+      }
+    })
+  }, [])
+
+  /**
+   * 動的フィールドを更新する
+   */
+  const updateDynamicField = useCallback((id: string, key: string, value: string) => {
+    setState((prev) => ({
+      ...prev,
+      constructionInfo: {
+        ...prev.constructionInfo,
+        dynamicFields: prev.constructionInfo.dynamicFields.map((field) =>
+          field.id === id ? {...field, key: key.trim(), value: value.trim()} : field,
+        ),
+      },
+    }))
+  }, [])
+
+  /**
+   * 動的フィールドを削除する
+   */
+  const removeDynamicField = useCallback((id: string) => {
+    setState((prev) => ({
+      ...prev,
+      constructionInfo: {
+        ...prev.constructionInfo,
+        dynamicFields: prev.constructionInfo.dynamicFields.filter((field) => field.id !== id),
+      },
+    }))
+  }, [])
+
   return {
     // 状態
     state,
@@ -206,6 +257,11 @@ export const useConstructionBoardApp = () => {
     setProcessedImage,
     setError,
     setLoading,
+
+    // 動的フィールド操作
+    addDynamicField,
+    updateDynamicField,
+    removeDynamicField,
 
     // 複合的な処理
     handleImageUploadSuccess,

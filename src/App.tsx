@@ -15,7 +15,8 @@ import {useConstructionBoardApp, useFileUpload, useImageProcessor} from "./hooks
 // コンポーネントのインポート
 import {
   FileUpload,
-  ConstructionInputs,
+  ConstructionInfoInput,
+  ConstructionDateInput,
   ImagePreview,
   ExifDisplay,
   CanvasPreview,
@@ -26,7 +27,7 @@ import {
 
 // 定数のインポート
 import {APP_INFO} from "./constants"
-import {drawConstructionBoard} from "./utils"
+import {drawConstructionBoard, validateRequiredFields} from "./utils"
 
 /**
  * 工事黒板アプリケーションのメインコンポーネント
@@ -35,9 +36,11 @@ function App(): React.JSX.Element {
   // アプリケーション状態管理
   const {
     state,
-    canProcessImage,
     setConstructionName,
     setConstructionDate,
+    addDynamicField,
+    updateDynamicField,
+    removeDynamicField,
     handleImageUploadSuccess,
     handleImageProcessSuccess,
     handleError,
@@ -85,6 +88,13 @@ function App(): React.JSX.Element {
   const handleImageProcess = useCallback(async () => {
     if (!state.originalImage) return
 
+    // 必須フィールドのバリデーション
+    const validation = validateRequiredFields(state.constructionInfo.name, state.constructionInfo.date)
+    if (!validation.isValid) {
+      handleError(validation.errors.join(", "))
+      return
+    }
+
     try {
       const result = await processImage(
         state.originalImage.dataUrl,
@@ -118,8 +128,15 @@ function App(): React.JSX.Element {
 
         if (ctx) {
           ctx.drawImage(imgLoader, 0, 0, imgLoader.naturalWidth, imgLoader.naturalHeight)
-          // 工事黒板の文字を描画
-          drawConstructionBoard(ctx, canvas.width, canvas.height, state.constructionInfo.name, state.constructionInfo.date)
+          // 工事黒板の文字を描画（動的フィールドも含む）
+          drawConstructionBoard(
+            ctx,
+            canvas.width,
+            canvas.height,
+            state.constructionInfo.name,
+            state.constructionInfo.date,
+            state.constructionInfo.dynamicFields,
+          )
         }
       }
 
@@ -136,6 +153,7 @@ function App(): React.JSX.Element {
     state.originalImage,
     state.constructionInfo.name,
     state.constructionInfo.date,
+    state.constructionInfo.dynamicFields,
     canvasRef,
     imageLoaderRef,
     clearCanvas,
@@ -156,9 +174,16 @@ function App(): React.JSX.Element {
 
           {state.originalImage && (
             <>
-              <ConstructionInputs
+              <ConstructionInfoInput
                 constructionName={state.constructionInfo.name}
                 onConstructionNameChange={setConstructionName}
+                dynamicFields={state.constructionInfo.dynamicFields}
+                onAddField={addDynamicField}
+                onUpdateField={updateDynamicField}
+                onRemoveField={removeDynamicField}
+              />
+
+              <ConstructionDateInput
                 constructionDate={state.constructionInfo.date}
                 onConstructionDateChange={setConstructionDate}
                 isDateFromExif={state.constructionInfo.isDateFromExif}
@@ -166,7 +191,7 @@ function App(): React.JSX.Element {
 
               <LoadingSpinner isLoading={isProcessing} message="工事黒板を生成中..." inline />
 
-              <button onClick={handleImageProcess} disabled={!canProcessImage || isProcessing}>
+              <button onClick={handleImageProcess} disabled={!state.originalImage || isProcessing}>
                 {isProcessing ? "処理中..." : "工事黒板付きJPEG画像を生成 (Exif付与)"}
               </button>
             </>

@@ -20,6 +20,18 @@ export interface ImageInfo {
 }
 
 /**
+ * 動的なフィールド情報を表すインターフェース
+ */
+export interface DynamicField {
+  /** フィールドのキー */
+  key: string
+  /** フィールドの値 */
+  value: string
+  /** フィールドのユニークID */
+  id: string
+}
+
+/**
  * 工事情報を表すインターフェース
  */
 export interface ConstructionInfo {
@@ -29,6 +41,8 @@ export interface ConstructionInfo {
   date: Date | null
   /** 日時がExif情報から自動設定されたかどうか */
   isDateFromExif: boolean
+  /** 動的に追加されたフィールドの配列 */
+  dynamicFields: DynamicField[]
 }
 
 /**
