@@ -1,9 +1,17 @@
+/**
+ * 工事黒板アプリケーション用ヘルパー関数集
+ * @fileoverview 画像処理、Exif操作、日時フォーマット等のユーティリティ関数
+ */
+
 import piexif from "piexifjs"
+import type {ExifDict} from "piexifjs"
 
 /**
  * Exifデータが実質的な情報を含むかチェックするヘルパー関数
+ * @param exifData - チェック対象のExif辞書オブジェクト
+ * @returns 意味のあるExifデータが含まれている場合はtrue
  */
-export function hasMeaningfulExif(exifData: piexif.ExifDict | null): boolean {
+export function hasMeaningfulExif(exifData: ExifDict | null): boolean {
   if (!exifData) return false
 
   // より効率的なアクセス方法：プロパティを直接参照
@@ -27,6 +35,11 @@ export function hasMeaningfulExif(exifData: piexif.ExifDict | null): boolean {
 
 /**
  * 日時を日本語形式に変換するヘルパー関数
+ * @param date - 変換対象の日時オブジェクト
+ * @returns 日本語形式の日時文字列（例: "2023年5月15日 14:30"）
+ * @example
+ * formatDateTimeForDisplay(new Date('2023-05-15T14:30:45'))
+ * // => "2023年5月15日 14:30"
  */
 export function formatDateTimeForDisplay(date: Date | null): string {
   if (!date) return ""
@@ -39,13 +52,19 @@ export function formatDateTimeForDisplay(date: Date | null): string {
     const minutes = date.getMinutes().toString().padStart(2, "0")
 
     return `${year}年${month}月${day}日 ${hours}:${minutes}`
-  } catch {
+  } catch (error) {
+    console.error("Failed to format date for display:", error)
     return "" // フォーマットに失敗した場合は空文字を返す
   }
 }
 
 /**
  * Dateオブジェクトをdatetime-local形式の文字列に変換するヘルパー関数
+ * @param date - 変換対象の日時オブジェクト
+ * @returns datetime-local形式の文字列（例: "2023-05-15T14:30"）
+ * @example
+ * formatDateForInput(new Date('2023-05-15T14:30:45'))
+ * // => "2023-05-15T14:30"
  */
 export function formatDateForInput(date: Date | null): string {
   if (!date) return ""
@@ -58,16 +77,21 @@ export function formatDateForInput(date: Date | null): string {
     const minutes = date.getMinutes().toString().padStart(2, "0")
 
     return `${year}-${month}-${day}T${hours}:${minutes}`
-  } catch {
+  } catch (error) {
+    console.error("Failed to format date for input:", error)
     return ""
   }
 }
 
 /**
  * Exif情報から撮影日時を取得するヘルパー関数
+ * @param exifData - Exif辞書オブジェクト
+ * @returns 撮影日時のDateオブジェクト、取得できない場合はnull
+ * @description
  * 最適化: 一度のアクセスでプロパティを取得してキャッシュ
+ * 優先順位: DateTimeOriginal > DateTimeDigitized > DateTime
  */
-export function extractDateTimeFromExif(exifData: piexif.ExifDict | null): Date | null {
+export function extractDateTimeFromExif(exifData: ExifDict | null): Date | null {
   if (!exifData) return null
 
   try {
@@ -109,9 +133,11 @@ export function extractDateTimeFromExif(exifData: piexif.ExifDict | null): Date 
 
 /**
  * Exif情報から撮影日時とGPS情報を取得するヘルパー関数
- * GPS情報を含めて取得するように改良
+ * @param exifData - Exif辞書オブジェクト
+ * @returns 撮影日時とGPS情報を含むオブジェクト
+ * @description GPS情報を含めて取得するように改良
  */
-export function extractExifDetails(exifData: piexif.ExifDict | null): {
+export function extractExifDetails(exifData: ExifDict | null): {
   dateTime: Date | null
   gpsInfo: Record<string, unknown> | null
 } {
