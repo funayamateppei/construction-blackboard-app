@@ -29,7 +29,7 @@
 
 1. リポジトリをクローンします。
    ```bash
-   git clone <リポジトリURL>
+   git clone https://github.com/funayamateppei/construction-blackboard-app.git
    ```
 2. 必要な依存関係をインストールします。
    ```bash
