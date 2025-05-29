@@ -1,6 +1,6 @@
 import {useState, useRef, useEffect, useCallback} from "react"
 import type {ChangeEvent} from "react"
-import piexif from "piexifjs"
+import piexif, {type ExifDict} from "piexifjs"
 import "./App.css"
 
 // コンポーネントのインポート
@@ -13,7 +13,7 @@ function App() {
   const [originalImage, setOriginalImage] = useState<string | null>(null)
   const [originalImageType, setOriginalImageType] = useState<string | null>(null)
   // originalExifObj の型を IExifElement | null に変更
-  const [originalExifObj, setOriginalExifObj] = useState<piexif.ExifDict | null>(null)
+  const [originalExifObj, setOriginalExifObj] = useState<ExifDict | null>(null)
   const [originalExifStr, setOriginalExifStr] = useState<string>("")
   const [processedImage, setProcessedImage] = useState<string | null>(null)
 
