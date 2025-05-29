@@ -282,7 +282,7 @@
 }
 
 /* プレビュー画像の回転コンテナ */
-.rotated-preview-container {
+.preview-container {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -291,7 +291,7 @@
   overflow: visible; /* overflowをvisibleに変更 */
 }
 
-.rotated-preview-image {
+.preview-image {
   border: 1px solid #e0e0e0;
   border-radius: 4px;
   transition: all 0.3s ease-in-out;

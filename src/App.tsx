@@ -4,7 +4,7 @@ import piexif from "piexifjs"
 import "./App.css"
 
 // コンポーネントのインポート
-import {FileUpload, ConstructionInputs, ImagePreview, ExifDisplay, CanvasPreview, RotatedPreview} from "./components"
+import {FileUpload, ConstructionInputs, ImagePreview, ExifDisplay, CanvasPreview, Preview} from "./components"
 
 // ヘルパー関数のインポート
 import {hasMeaningfulExif, formatDateTimeForDisplay, extractDateTimeFromExif, transferExifData} from "./utils/helpers"
@@ -16,13 +16,11 @@ function App() {
   const [originalExifObj, setOriginalExifObj] = useState<piexif.ExifDict | null>(null)
   const [originalExifStr, setOriginalExifStr] = useState<string>("")
   const [processedImage, setProcessedImage] = useState<string | null>(null)
-  const [rotatedPreviewImage, setRotatedPreviewImage] = useState<string | null>(null) // 回転プレビュー用画像
 
   // 工事黒板の情報
   const [constructionName, setConstructionName] = useState<string>("")
   const [constructionDate, setConstructionDate] = useState<Date | null>(null)
   const [isDateFromExif, setIsDateFromExif] = useState<boolean>(false) // Exif情報から日時が設定されているかのフラグ
-  const [downloadRotation, setDownloadRotation] = useState<number>(0) // ダウンロード用回転角度（0, 90, 180, 270度）
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const imageLoaderRef = useRef<HTMLImageElement>(null)
@@ -33,80 +31,14 @@ function App() {
     setOriginalExifObj(null)
     setOriginalExifStr("")
     setProcessedImage(null)
-    setRotatedPreviewImage(null)
     setConstructionName("")
     setConstructionDate(null)
     setIsDateFromExif(false)
-    setDownloadRotation(0)
     if (canvasRef.current) {
       const context = canvasRef.current.getContext("2d")
       context?.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
     }
   }
-
-  // プレビュー用の回転画像を生成する関数
-  const generateRotatedPreview = useCallback((imageDataUrl: string, rotation: number) => {
-    if (rotation === 0) {
-      setRotatedPreviewImage(imageDataUrl)
-      return
-    }
-
-    const img = new Image()
-    img.onload = () => {
-      const canvas = document.createElement("canvas")
-      const ctx = canvas.getContext("2d")
-      if (!ctx) return
-
-      // 回転に基づいてCanvasのサイズを決定
-      let canvasWidth = img.width
-      let canvasHeight = img.height
-
-      // 90度または270度回転の場合、幅と高さを入れ替える
-      if (rotation === 90 || rotation === 270) {
-        canvasWidth = img.height
-        canvasHeight = img.width
-      }
-
-      canvas.width = canvasWidth
-      canvas.height = canvasHeight
-
-      // 回転に基づいて画像を適切に変換して描画
-      ctx.save()
-
-      switch (rotation) {
-        case 90:
-          // 時計回りに90度回転
-          ctx.translate(canvasWidth, 0)
-          ctx.rotate(Math.PI / 2)
-          break
-        case 180:
-          // 180度回転
-          ctx.translate(canvasWidth, canvasHeight)
-          ctx.rotate(Math.PI)
-          break
-        case 270:
-          // 反時計回りに90度回転（時計回りに270度）
-          ctx.translate(0, canvasHeight)
-          ctx.rotate(-Math.PI / 2)
-          break
-      }
-
-      ctx.drawImage(img, 0, 0, img.width, img.height)
-      ctx.restore()
-
-      // 回転した画像をプレビュー用に設定
-      const rotatedImageDataUrl = canvas.toDataURL("image/jpeg", 0.9)
-      setRotatedPreviewImage(rotatedImageDataUrl)
-    }
-    img.src = imageDataUrl
-  }, [])
-
-  // 回転角度が変更された時にプレビューを更新
-  useEffect(() => {
-    if (processedImage) {
-      generateRotatedPreview(processedImage, downloadRotation)
-    }
-  }, [processedImage, downloadRotation, generateRotatedPreview])
 
   // 工事黒板を描画する関数（緑の背景でテーブル風）
   const drawConstructionBoard = useCallback(
@@ -353,7 +285,6 @@ function App() {
           const exifBytes = piexif.dump(transferredExif)
           const imageWithExifDataUrl = piexif.insert(exifBytes, newImageDataUrl)
           setProcessedImage(imageWithExifDataUrl)
-          generateRotatedPreview(imageWithExifDataUrl, downloadRotation) // プレビューも生成
           alert("工事黒板付きJPEG画像を生成しました！元のExif情報も付与されています。")
         } else {
           throw new Error("Transferred Exif data is null.")
@@ -361,12 +292,10 @@ function App() {
       } catch (error) {
         console.error("Failed to insert EXIF data:", error)
         setProcessedImage(newImageDataUrl)
-        generateRotatedPreview(newImageDataUrl, downloadRotation) // プレビューも生成
         alert("工事黒板付きJPEG画像を生成しました。ただし、Exif情報の付与に失敗しました。")
       }
     } else {
       setProcessedImage(newImageDataUrl)
-      generateRotatedPreview(newImageDataUrl, downloadRotation) // プレビューも生成
       if (originalImageType === "image/png") {
         alert("工事黒板付きJPEG画像を生成しました。元画像がPNGのため、Exif情報は付与されませんでした。")
       } else if (originalImageType === "image/jpeg" && !hasMeaningfulExif(originalExifObj)) {
@@ -380,7 +309,7 @@ function App() {
   }
 
   // 生成された画像を回転させてダウンロードする関数
-  const handleRotatedDownload = useCallback(() => {
+  const handleDownload = useCallback(() => {
     if (!processedImage) return
 
     const img = new Image()
@@ -390,41 +319,14 @@ function App() {
       if (!ctx) return
 
       // 回転に基づいてCanvasのサイズを決定
-      let canvasWidth = img.width
-      let canvasHeight = img.height
-
-      // 90度または270度回転の場合、幅と高さを入れ替える
-      if (downloadRotation === 90 || downloadRotation === 270) {
-        canvasWidth = img.height
-        canvasHeight = img.width
-      }
+      const canvasWidth = img.width
+      const canvasHeight = img.height
 
       canvas.width = canvasWidth
       canvas.height = canvasHeight
 
       // 回転に基づいて画像を適切に変換して描画
       ctx.save()
-
-      switch (downloadRotation) {
-        case 0:
-          // 回転なし
-          break
-        case 90:
-          // 時計回りに90度回転
-          ctx.translate(canvasWidth, 0)
-          ctx.rotate(Math.PI / 2)
-          break
-        case 180:
-          // 180度回転
-          ctx.translate(canvasWidth, canvasHeight)
-          ctx.rotate(Math.PI)
-          break
-        case 270:
-          // 反時計回りに90度回転（時計回りに270度）
-          ctx.translate(0, canvasHeight)
-          ctx.rotate(-Math.PI / 2)
-          break
-      }
 
       ctx.drawImage(img, 0, 0, img.width, img.height)
       ctx.restore()
@@ -441,7 +343,7 @@ function App() {
 
             const link = document.createElement("a")
             link.href = imageWithExifDataUrl
-            link.download = `construction_board_image_${downloadRotation}deg.jpg`
+            link.download = `construction_board_image.jpg`
             document.body.appendChild(link)
             link.click()
             document.body.removeChild(link)
@@ -454,14 +356,14 @@ function App() {
       } else {
         const link = document.createElement("a")
         link.href = rotatedImageDataUrl
-        link.download = `construction_board_image_${downloadRotation}deg.jpg`
+        link.download = `construction_board_image.jpg`
         document.body.appendChild(link)
         link.click()
         document.body.removeChild(link)
       }
     }
     img.src = processedImage
-  }, [processedImage, downloadRotation, originalExifObj, originalImageType])
+  }, [processedImage, originalExifObj, originalImageType])
 
   return (
     <div className="App">
@@ -498,13 +400,7 @@ function App() {
 
           <CanvasPreview ref={canvasRef} hasImage={!!originalImage} />
 
-          <RotatedPreview
-            processedImage={processedImage}
-            rotatedPreviewImage={rotatedPreviewImage}
-            downloadRotation={downloadRotation}
-            onRotationChange={setDownloadRotation}
-            onDownload={handleRotatedDownload}
-          />
+          <Preview processedImage={processedImage} onDownload={handleDownload} />
         </div>
       </main>
     </div>
