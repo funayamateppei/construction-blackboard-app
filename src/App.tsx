@@ -7,7 +7,7 @@ import "./App.css"
 import {FileUpload, ConstructionInputs, ImagePreview, ExifDisplay, CanvasPreview, RotatedPreview} from "./components"
 
 // ヘルパー関数のインポート
-import {hasMeaningfulExif, formatDateTimeForDisplay, extractDateTimeFromExif} from "./utils/helpers"
+import {hasMeaningfulExif, formatDateTimeForDisplay, extractDateTimeFromExif, transferExifData} from "./utils/helpers"
 
 function App() {
   const [originalImage, setOriginalImage] = useState<string | null>(null)
@@ -348,11 +348,16 @@ function App() {
 
     if (originalExifObj && originalImageType === "image/jpeg" && hasMeaningfulExif(originalExifObj)) {
       try {
-        const exifBytes = piexif.dump(originalExifObj)
-        const imageWithExifDataUrl = piexif.insert(exifBytes, newImageDataUrl)
-        setProcessedImage(imageWithExifDataUrl)
-        generateRotatedPreview(imageWithExifDataUrl, downloadRotation) // プレビューも生成
-        alert("工事黒板付きJPEG画像を生成しました！元のExif情報も付与されています。")
+        const transferredExif = transferExifData(originalExifObj)
+        if (transferredExif) {
+          const exifBytes = piexif.dump(transferredExif)
+          const imageWithExifDataUrl = piexif.insert(exifBytes, newImageDataUrl)
+          setProcessedImage(imageWithExifDataUrl)
+          generateRotatedPreview(imageWithExifDataUrl, downloadRotation) // プレビューも生成
+          alert("工事黒板付きJPEG画像を生成しました！元のExif情報も付与されています。")
+        } else {
+          throw new Error("Transferred Exif data is null.")
+        }
       } catch (error) {
         console.error("Failed to insert EXIF data:", error)
         setProcessedImage(newImageDataUrl)
@@ -426,15 +431,37 @@ function App() {
 
       // 回転した画像をダウンロード
       const rotatedImageDataUrl = canvas.toDataURL("image/jpeg", 0.9)
-      const link = document.createElement("a")
-      link.href = rotatedImageDataUrl
-      link.download = `construction_board_image_${downloadRotation}deg.jpg`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
+
+      if (originalExifObj && originalImageType === "image/jpeg" && hasMeaningfulExif(originalExifObj)) {
+        try {
+          const transferredExif = transferExifData(originalExifObj)
+          if (transferredExif) {
+            const exifBytes = piexif.dump(transferredExif)
+            const imageWithExifDataUrl = piexif.insert(exifBytes, rotatedImageDataUrl)
+
+            const link = document.createElement("a")
+            link.href = imageWithExifDataUrl
+            link.download = `construction_board_image_${downloadRotation}deg.jpg`
+            document.body.appendChild(link)
+            link.click()
+            document.body.removeChild(link)
+          } else {
+            throw new Error("Transferred Exif data is null.")
+          }
+        } catch (error) {
+          console.error("Failed to insert EXIF data into rotated image:", error)
+        }
+      } else {
+        const link = document.createElement("a")
+        link.href = rotatedImageDataUrl
+        link.download = `construction_board_image_${downloadRotation}deg.jpg`
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+      }
     }
     img.src = processedImage
-  }, [processedImage, downloadRotation])
+  }, [processedImage, downloadRotation, originalExifObj, originalImageType])
 
   return (
     <div className="App">
