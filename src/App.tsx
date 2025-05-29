@@ -1,4 +1,4 @@
-import {useState, useRef, useEffect, useCallback} from "react"
+import {useState, useRef, useEffect} from "react"
 import {type ExifDict} from "piexifjs"
 import "./App.css"
 
@@ -65,18 +65,6 @@ function App() {
     }
   }, [originalImage, constructionName, constructionDate])
 
-  // 画像ダウンロード処理
-  const handleDownload = useCallback(() => {
-    if (!processedImage) return
-
-    const link = document.createElement("a")
-    link.href = processedImage
-    link.download = `construction_board_image.jpg`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  }, [processedImage])
-
   return (
     <div className="App">
       <header className="App-header">
@@ -125,13 +113,13 @@ function App() {
         <img ref={imageLoaderRef} alt="Image loader for canvas" style={{display: "none"}} />
 
         <div className="content-layout">
-          <ImagePreview src={originalImage} alt="Original" title="元画像" type={originalImageType} />
+          <ImagePreview src={originalImage} type={originalImageType} />
 
           <ExifDisplay exifData={originalExifStr} />
 
           <CanvasPreview ref={canvasRef} hasImage={!!originalImage} />
 
-          <Preview processedImage={processedImage} onDownload={handleDownload} />
+          <Preview processedImage={processedImage} />
         </div>
       </main>
     </div>
