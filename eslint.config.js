@@ -20,6 +20,16 @@ export default tseslint.config(
     rules: {
       ...reactHooks.configs.recommended.rules,
       "react-refresh/only-export-components": ["warn", {allowConstantExport: true}],
+      "no-restricted-imports": [
+        "error",
+        {patterns: [{group: ["@mui/*"], message: "Please import from '../ui' instead of directly from @mui packages"}]},
+      ],
+    },
+  },
+  {
+    files: ["src/ui/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": "off", // ui配下のファイルは@muiの直接importを許可
     },
   },
 )
